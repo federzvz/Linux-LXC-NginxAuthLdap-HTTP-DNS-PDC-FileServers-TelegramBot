@@ -16,16 +16,150 @@
 
 `apt upgrade`
 
-`apt install samba`
 >-NO en DHCP-
+>
+>`apt install samba`
+
 
 `ps ax | egrep "samba|smbd|nmbd|winbindd"`
 
 `pkill smbd`
 `pkill nmbd`
 
-`ps ax | egrep "samba|smbd|nmbd|winbindd"`
 >-VERIFICAR SI NO HAY NINGUN PROCESO DE SAMBA-
+>
+>`ps ax | egrep "samba|smbd|nmbd|winbindd"`
+
+
+
+>`smbd -b | egrep "LOCKDIR|STATEDIR|CACHEDIR|PRIVATE_DIR"`
+>
+>```
+>rm /var/run/samba/*.tdb
+>rm /var/run/samba/*.ldb
+>rm /var/lib/samba/*.tdb
+>rm /var/lib/samba/*.ldb
+>rm /var/cache/samba/*.ldb
+>rm /var/cache/samba/*.tdb
+>rm /var/lib/samba/private/*.tdb
+>rm /var/lib/samba/private/*.ldb
+>```
+
+>ASEGURARSE DE TENER EL PDC EN EL /etc/resolv.conf
+>
+>`cat /etc/resolv.conf`
+>```
+># --- BEGIN PVE ---
+>search equipo10.admininfra.edu.uy
+>nameserver 10.0.2.111
+># --- END PVE ---
+>```
+
+`apt install dnsutils`
+
+>testear nslookup
+>
+>nslookup ct-pdc.equipo10.admininfra.edu.uy
+>```
+>Server:         10.0.2.111
+>Address:        10.0.2.111#53
+>
+>Name:   ct-pdc.equipo10.admininfra.edu.uy
+>Address: 192.168.200.136
+>Name:   ct-pdc.equipo10.admininfra.edu.uy
+>Address: 10.0.2.111
+>```
+
+`nano /etc/krb5.conf`
+
+```
+[libdefaults]
+        default_realm = EQUIPO10.ADMININFRA.EDU.UY
+        dns_lookup_realm = false
+        dns_lookup_kdc = true
+```
+
+>VERIFICAR QUE ESTÉ LA IP BIEN
+> `getent hosts`
+> 
+> ```10.0.2.112      ct-file-server.equipo10.admininfra.edu.uy ct-file-server```
+
+`/etc/samba/smb.conf`
+
+```
+[global]
+   workgroup = EQUIPO10
+   security = ADS
+   realm = EQUIPO10.ADMININFRA.EDU.UY
+
+   winbind refresh tickets = Yes
+   vfs objects = acl_xattr
+   map acl inherit = Yes
+   store dos attributes = Yes
+
+   dedicated keytab file = /etc/krb5.keytab
+   kerberos method = secrets and keytab
+
+   winbind use default domain = yes
+
+   winbind enum users = yes
+   winbind enum groups = yes
+
+   load printers = no
+   printing = bsd
+   printcap name = /dev/null
+   disable spoolss = yes
+
+   idmap config * : backend = tdb
+   idmap config * : range = 3000-7999
+   # - You must set a DOMAIN backend configuration
+   # idmap config for the SAMDOM domain
+   idmap config EQUIPO10:backend = ad
+   idmap config EQUIPO10:schema_mode = rfc2307
+   idmap config EQUIPO10:range = 10000-999999
+   idmap config EQUIPO10:unix_nss_info = yes
+
+   vfs objects = acl_xattr
+   map acl inherit = yes
+   store dos attributes = yes
+```
+
+`net ads join -U administrator`
+
+```
+Enter administrator's password:
+Using short domain name -- EQUIPO10
+Joined 'CT-FILE-SERVER' to dns domain 'equipo10.admininfra.edu.uy'
+```
+
+`apt install winbind`
+
+`apt install libnss-winbind libpam-winbind`
+
+`nano /etc/nsswitch.conf`
+
+```
+# /etc/nsswitch.conf
+#
+# Example configuration of GNU Name Service Switch functionality.
+# If you have the `glibc-doc-reference' and `info' packages installed, try:
+# `info libc "Name Service Switch"' for information about this file.
+
+passwd:         files systemd winbind
+group:          files systemd winbind
+shadow:         files
+gshadow:        files
+
+hosts:          files dns
+networks:       files
+
+protocols:      db files
+services:       db files
+ethers:         db files
+rpc:            db files
+
+netgroup:       nis
+```
 
 
 
