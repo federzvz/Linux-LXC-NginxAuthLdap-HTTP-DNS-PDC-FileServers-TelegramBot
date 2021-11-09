@@ -80,6 +80,7 @@
 ```
 
 >VERIFICAR QUE ESTÉ LA IP BIEN
+>
 > `getent hosts`
 > 
 > ```10.0.2.112      ct-file-server.equipo10.admininfra.edu.uy ct-file-server```
@@ -180,15 +181,38 @@ netgroup:       nis
 >```
 
 
-
-
-
-
-
 ***____________________________________________________________________________________________________________________________________________***
 
 ***DNS Server***(Contenedor 4):
 
+**EN UN CONTENEDOR NUEVO QUE FUNCIONARÁ COMO UN SERVIDOR DNS**
+
+`apt update`
+
+*Instalar dnsmasq*
+
+`apt install dnsmasq -y`
+
+*Instalas las utilidades DNS*
+
+`apt install dnsutils`
+
+>`dig debian.org @localhost`
+>
+>Verificar que esté todo OK
+
+*Remplazar el nameserver default por los siguientes servidores ISP Antel(Realizarlo desde Proxmox)*
+
+`nano /etc/resolv.conf`
+
+```
+nameserver 200.40.30.245
+nameserver 200.40.220.245
+````
+
+*Verificar que se resuelvan las DNS correctamente (Si nos devuelve la IP está funcionadno.)*
+
+`nslookup antel.com.uy`
 
 ***____________________________________________________________________________________________________________________________________________***
 
