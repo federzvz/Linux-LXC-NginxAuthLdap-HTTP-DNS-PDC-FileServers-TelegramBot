@@ -161,6 +161,28 @@ rpc:            db files
 netgroup:       nis
 ```
 
+>CAMBIAR CON ADMINTOOLS EL GID NUMBER DE DOMAIN USERS A 10000
+
+>PARA MONITOREAR
+>
+> `apt install zabbix-agent`
+>
+>`nano /etc/zabbix/zabbix_agentd.conf`
+>
+>```
+>PidFile=/tmp/zabbix_agentd.pid
+>LogFile=/tmp/zabbix_agentd.log
+>LogFileSize=3
+>Server=10.0.2.114,127.0.0.1
+>ServerActive=10.0.2.114
+>HostMetadata=e13f6fcf1e80acf28bcd308cfa9776c1
+>Include=/etc/zabbix/zabbix_agentd.conf.d
+>```
+
+
+
+
+
 
 
 ***____________________________________________________________________________________________________________________________________________***
