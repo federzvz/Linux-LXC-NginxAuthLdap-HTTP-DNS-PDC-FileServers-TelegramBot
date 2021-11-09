@@ -1,6 +1,6 @@
 # ADMININFRA LABORATORIO FINAL
 
-
+***____________________________________________________________________________________________________________________________________________***
 ***Http Server***(Contenedor 1)
 
 `apt update`
@@ -206,6 +206,11 @@ WantedBy=multi-user.target
 
 ***Monitorización***(Contenedor 2):
 
+![alt text](https://media.discordapp.net/attachments/883488196036534297/907487706794295297/unknown.png?width=1026&height=670)
+
+![alt text](https://media.discordapp.net/attachments/883488196036534297/905835068663148644/unknown.png?width=1440&height=608)
+
+![alt text](https://cdn.discordapp.com/attachments/883488196036534297/906190460970733609/unknown.png)
 
 ***____________________________________________________________________________________________________________________________________________***
 
@@ -417,8 +422,11 @@ nameserver 200.40.220.245
 
 ***PDC Server***(Contenedor 5):
 
+![alt text](https://cdn.discordapp.com/attachments/883488196036534297/907704717059174470/Desktop_Screenshot_2021.11.09_-_15.53.26.68.png)
+
+![alt text](https://cdn.discordapp.com/attachments/883488196036534297/907704706925756476/Desktop_Screenshot_2021.11.09_-_15.53.20.98.png)
 
 ***____________________________________________________________________________________________________________________________________________***
 
 
-![alt text](https://cdn.discordapp.com/attachments/883488196036534297/886380346931826718/unknown.png)
+
