@@ -112,8 +112,7 @@ http {
     server {
         listen       80;
         server_name  localhost;
-        root /usr/local/nginx/www/dashboard.equipo10.admininfra.edu.uy;
-        index access_log.html;
+        index index.html;
         #charset koi8-r;
 
         #access_log  logs/host.access.log  main;
