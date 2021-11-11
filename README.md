@@ -9,31 +9,23 @@
 
 *Dependencias:*
 
-`wget https://ufpr.dl.sourceforge.net/project/pcre/pcre/8.43/pcre-8.43.tar.gz && tar xzvf pcre-8.43.tar.gz`
+`wget https://sourceforge.net/projects/pcre/files/pcre/8.45/pcre-8.45.tar.gz/download`
 
-`wget https://www.zlib.net/zlib-1.2.11.tar.gz && tar xzvf zlib-1.2.11.tar.gz`
-
-`wget https://www.openssl.org/source/openssl-1.1.1c.tar.gz && tar xzvf openssl-1.1.1c.tar.gz`
-        
-*NginX:*
-
-`wget https://nginx.org/download/nginx-1.20.1.tar.gz && tar zxvf nginx-1.20.1.tar.gz`
-
-*Mas dependencias:*
-
-`apt install -y perl libperl-dev libgd3 libgd-dev libgeoip1 libgeoip-dev geoip-bin libxml2 libxml2-dev libxslt1.1 libxslt1-dev`
+`mv download pcre-8.45.tar.gz` *Esto porque lo decarga con el nombre de "download"*
 
 `apt install build-essential`
 
-*Copia del manual(Opcional):*
+`wget http://zlib.net/zlib-1.2.11.tar.gz`
 
-`cp ~/nginx-1.20.1/man/nginx.8 /usr/share/man/man8`
+`apt install libldap2-dev ldap-utils libssl-dev`
         
-`gzip /usr/share/man/man8/nginx.8`
+*NginX:*
 
-*Entrar a los 3 directorios nuevos e instalarlos:*
+`wget https://nginx.org/download/nginx-1.18.0.tar.gz`
 
->`cd pcre-8.43/`
+*Entrar a los 2 directorios nuevos e instalarlos:*
+
+>`cd pcre-8.45/`
 >
 >`./configure`
 >
@@ -41,20 +33,12 @@
 >
 >`make install`
 
->`cd openssl-1.1.1c/`
+>`cd cd zlib-1.2.11/`
 >
->`./config`
+>`./configure`
 >    
 >`make`
 >   
->`make install`
- 
->`cd zlib-1.2.11/`
->
->`./configure`
->
->`make`
->
 >`make install`
 
 *Descargar el modulo de auth-ldap:*
@@ -63,144 +47,156 @@
 
 `git clone https://github.com/kvspb/nginx-auth-ldap.git`
 
-`apt install libldap2-dev ldap-utils`
-
 *Instalar NginX:*
 
 `cd nginx-1.20.1/`
 
-```
-./configure --prefix=/etc/nginx \
---sbin-path=/usr/sbin/nginx \
---modules-path=/usr/lib/nginx/modules \
---conf-path=/etc/nginx/nginx.conf \
---error-log-path=/var/log/nginx/error.log \
---pid-path=/var/run/nginx.pid \
---lock-path=/var/run/nginx.lock \
---user=nginx \
---group=nginx \
---build=Debian \
---builddir=nginx-1.20.1 \
---with-select_module \
---with-poll_module \
---with-threads \
---with-file-aio \
---with-http_ssl_module \
---with-http_v2_module \
---with-http_realip_module \
---with-http_addition_module \
---with-http_xslt_module=dynamic \
---with-http_image_filter_module=dynamic \
---with-http_geoip_module=dynamic \
---with-http_sub_module \
---with-http_dav_module \
---with-http_flv_module \
---with-http_mp4_module \
---with-http_gunzip_module \
---with-http_gzip_static_module \
---with-http_auth_request_module \
---with-http_random_index_module \
---with-http_secure_link_module \
---with-http_degradation_module \
---with-http_slice_module \
---with-http_stub_status_module \
---with-http_perl_module=dynamic \
---with-perl_modules_path=/usr/share/perl/5.26.1 \
---with-perl=/usr/bin/perl \
---http-log-path=/var/log/nginx/access.log \
---http-client-body-temp-path=/var/cache/nginx/client_temp \
---http-proxy-temp-path=/var/cache/nginx/proxy_temp \
---http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp \
---http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp \
---http-scgi-temp-path=/var/cache/nginx/scgi_temp \
---with-mail=dynamic \
---with-mail_ssl_module \
---with-stream=dynamic \
---with-stream_ssl_module \
---with-stream_realip_module \
---with-stream_geoip_module=dynamic \
---with-stream_ssl_preread_module \
---with-compat \
---with-pcre=../pcre-8.43 \
---with-pcre-jit \
---with-zlib=../zlib-1.2.11 \
---with-openssl=../openssl-1.1.1c \
---with-openssl-opt=no-nextprotoneg \
---add-module=$HOME/nginx-auth-ldap \
---with-debug
-```
+`./configure --add-module=/root/nginx-auth-ldap`
 	
 `make`
 
 `make install`
 
-`ln -s /usr/lib/nginx/modules /etc/nginx/modules`
+`echo "export PATH=$PATH:/usr/local/nginx/sbin" >> /root/.bashrc`
 
-*Podemos ver la version de NginX asi:*
+`source /root/.bashrc`
 
-`nginx -V`
-        
-*Crear el grupo y usuario para NginX:*
+*Modificamos el archivo nginx.conf*
 
-`adduser --system --home /nonexistent --shell /bin/false --no-create-home --disabled-login --disabled-password --gecos "nginx user" --group nginx`
-
-`tail -n 1 /etc/passwd /etc/group /etc/shadow`
-
-*Chequeo de errores:*
-
-`nginx -t`
-
-*Si te sale este error:*
-
-```nginx: [emerg] mkdir() "/var/cache/nginx/client_temp" failed (2: No such file or directory)```
-
-*Se soluciona asi:*
-
-`mkdir -p /var/cache/nginx/client_temp /var/cache/nginx/fastcgi_temp /var/cache/nginx/proxy_temp /var/cache/nginx/scgi_temp /var/cache/nginx/uwsgi_temp`
-
-`chmod 700 /var/cache/nginx/*`
-
-`chown nginx:root /var/cache/nginx/*`
-
-*Verificar solución*
-
-`nginx -t`
-
-*Crear el archivo de servicio:*
-
-`nano /etc/systemd/system/nginx.service`
+`nano /usr/local/nginx/conf/nginx.conf`
 
 *pegar dentro:*
 
 ```
-[Unit]
-Description=nginx - high performance web server
-Documentation=https://nginx.org/en/docs/
-After=network-online.target remote-fs.target nss-lookup.target
-Wants=network-online.target
+#user  nobody;
+worker_processes  1;
 
-[Service]
-Type=forking
-PIDFile=/var/run/nginx.pid
-ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/nginx.conf
-ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx.conf
-ExecReload=/bin/kill -s HUP $MAINPID
-ExecStop=/bin/kill -s TERM $MAINPID
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
 
-[Install]
-WantedBy=multi-user.target
+#pid        logs/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    ldap_server dashboard {
+        url ldap://10.0.2.111:3268/OU=WEB,OU=ADMININFRA,DC=EQUIPO10,DC=ADMININFRA,DC=EDU,DC=UY?sAMAccountName?sub?(objectClass=person);
+        binddn "EQUIPO10\\administrator";
+        binddn_passwd "Passw0rd";
+        #group_attribute uniquemember;
+        #group_attribute_is_dn on;
+        require valid_user;
+    }
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+    #access_log  logs/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    server {
+        listen       80;
+        server_name  localhost;
+        root /usr/local/nginx/www/dashboard.equipo10.admininfra.edu.uy;
+        index access_log.html;
+        #charset koi8-r;
+
+        #access_log  logs/host.access.log  main;
+        auth_ldap "Forbidden";
+        auth_ldap_servers dashboard;
+
+        location / {
+            #root   html;
+            #index  index.html index.htm;
+            try_files $uri $uri/ /access_log.html?$args;
+        }
+
+        #error_page  404              /404.html;
+
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+        # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+        #
+        #location ~ \.php$ {
+        #    proxy_pass   http://127.0.0.1;
+        #}
+
+        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        #
+        #location ~ \.php$ {
+        #    root           html;
+        #    fastcgi_pass   127.0.0.1:9000;
+        #    fastcgi_index  index.php;
+        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+        #    include        fastcgi_params;
+        #}
+
+        # deny access to .htaccess files, if Apache's document root
+        # concurs with nginx's one
+        #
+        #location ~ /\.ht {
+        #    deny  all;
+        #}
+    }
+
+
+    # another virtual host using mix of IP-, name-, and port-based configuration
+    #
+    #server {
+    #    listen       8000;
+    #    listen       somename:8080;
+    #    server_name  somename  alias  another.alias;
+
+    #    location / {
+    #        root   html;
+    #        index  index.html index.htm;
+    #    }
+    #}
+
+
+    # HTTPS server
+    #
+    #server {
+    #    listen       443 ssl;
+    #    server_name  localhost;
+
+    #    ssl_certificate      cert.pem;
+    #    ssl_certificate_key  cert.key;
+
+    #    ssl_session_cache    shared:SSL:1m;
+    #    ssl_session_timeout  5m;
+
+    #    ssl_ciphers  HIGH:!aNULL:!MD5;
+    #    ssl_prefer_server_ciphers  on;
+
+    #    location / {
+    #        root   html;
+    #        index  index.html index.htm;
+    #    }
+    #}
+
+}
 ```
-
-*habilitar el servicio:*
-
-`systemctl enable nginx.service`
-
-`systemctl start nginx.service`
-
-*Comprobar si se arranca al iniciar:*
-
-`systemctl is-enabled nginx.service`
-
 
 ***____________________________________________________________________________________________________________________________________________***
 
